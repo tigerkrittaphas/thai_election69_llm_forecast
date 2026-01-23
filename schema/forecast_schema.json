@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thai 2026 Weekly Forecast",
+  "type": "object",
+  "required": [
+    "week_start",
+    "week_end",
+    "model",
+    "condition",
+    "forecast_party_list",
+    "forecast_district",
+    "forecast_total"
+  ],
+  "properties": {
+    "week_start": {"type": "string", "format": "date"},
+    "week_end": {"type": "string", "format": "date"},
+    "model": {"type": "string"},
+    "condition": {"type": "string", "enum": ["with_prior", "no_prior"]},
+    "baseline": {"type": "string"},
+    "forecast_party_list": {"$ref": "#/definitions/partySeatMap"},
+    "forecast_district": {"$ref": "#/definitions/partySeatMap"},
+    "forecast_total": {"$ref": "#/definitions/partySeatMap"},
+    "delta_from_prior_total": {"$ref": "#/definitions/partySeatMap"},
+    "rationale": {"type": "array", "items": {"type": "string"}},
+    "checks": {
+      "type": "object",
+      "properties": {
+        "party_list_sum": {"type": "integer"},
+        "district_sum": {"type": "integer"},
+        "total_sum": {"type": "integer"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "partySeatMap": {
+      "type": "object",
+      "required": [
+        "People's Party",
+        "Bhumjaithai Party",
+        "Pheu Thai Party",
+        "Democrat Party (Thailand)",
+        "Kla Tham Party",
+        "Other"
+      ],
+      "properties": {
+        "People's Party": {"type": "integer", "minimum": 0},
+        "Bhumjaithai Party": {"type": "integer", "minimum": 0},
+        "Pheu Thai Party": {"type": "integer", "minimum": 0},
+        "Democrat Party (Thailand)": {"type": "integer", "minimum": 0},
+        "Kla Tham Party": {"type": "integer", "minimum": 0},
+        "Other": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    }
+  }
+}

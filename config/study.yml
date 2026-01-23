@@ -1,0 +1,39 @@
+study_name: thai-2026-election-simulation
+version: 0.1
+timezone: Asia/Bangkok
+start_date: 2025-12-12
+seats:
+  total: 500
+  party_list: 100
+  district: 400
+parties:
+  - "People's Party"
+  - "Bhumjaithai Party"
+  - "Pheu Thai Party"
+  - "Democrat Party (Thailand)"
+  - "Kla Tham Party"
+  - Other
+models:
+  - gpt-5.2
+  - gemini-3-pro
+  - claude-opus-4.5
+conditions:
+  - with_prior
+  - no_prior
+priors:
+  seed_reference: data/priors/seed_2023_reference.json
+outputs:
+  week_index: data/weeks.csv
+  runs_dir: data/runs
+  forecasts_dir: data/runs/{run_id}/forecasts
+  search_logs_dir: data/runs/{run_id}/search_logs
+  search_logs_social_dir: data/runs/{run_id}/search_logs_social
+  analysis_dir: data/runs/{run_id}/analysis
+prompts:
+  search: prompts/search_prompt.md
+  search_social: prompts/search_prompt_social.md
+  forecast_with_prior: prompts/forecast_prompt_with_prior.md
+  forecast_no_prior: prompts/forecast_prompt_no_prior.md
+schemas:
+  forecast: schema/forecast_schema.json
+  search_log: schema/search_log_schema.json

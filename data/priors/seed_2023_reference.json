@@ -1,0 +1,37 @@
+{
+  "source": "https://en.wikipedia.org/wiki/2023_Thai_general_election",
+  "as_of": "2023-05-14",
+  "notes": "Reference baseline mapped from 2023 results. This is a starting point only; party realignments since 2023 are expected.",
+  "mapping": {
+    "People's Party": "Move Forward Party",
+    "Bhumjaithai Party": "Bhumjaithai Party",
+    "Pheu Thai Party": "Pheu Thai Party",
+    "Democrat Party (Thailand)": "Democrat Party (Thailand)",
+    "Kla Tham Party": "Not in 2023 results",
+    "Other": "All other parties combined"
+  },
+  "party_list": {
+    "People's Party": 39,
+    "Bhumjaithai Party": 3,
+    "Pheu Thai Party": 29,
+    "Democrat Party (Thailand)": 3,
+    "Kla Tham Party": 0,
+    "Other": 26
+  },
+  "district": {
+    "People's Party": 112,
+    "Bhumjaithai Party": 68,
+    "Pheu Thai Party": 112,
+    "Democrat Party (Thailand)": 22,
+    "Kla Tham Party": 0,
+    "Other": 86
+  },
+  "total": {
+    "People's Party": 151,
+    "Bhumjaithai Party": 71,
+    "Pheu Thai Party": 141,
+    "Democrat Party (Thailand)": 25,
+    "Kla Tham Party": 0,
+    "Other": 112
+  }
+}

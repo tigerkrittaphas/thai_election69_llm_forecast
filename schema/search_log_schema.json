@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Thai 2026 Weekly Search Log",
+  "type": "object",
+  "required": [
+    "week_start",
+    "week_end",
+    "model",
+    "queries",
+    "sources",
+    "summary"
+  ],
+  "properties": {
+    "week_start": {"type": "string", "format": "date"},
+    "week_end": {"type": "string", "format": "date"},
+    "model": {"type": "string"},
+    "queries": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 2
+    },
+    "sources": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/source"},
+      "minItems": 15
+    },
+    "excluded_sources": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/excludedSource"}
+    },
+    "summary": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "notes": {"type": "string"}
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "source": {
+      "type": "object",
+      "required": ["title", "url", "date", "publisher", "why_relevant"],
+      "properties": {
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "date": {"type": "string"},
+        "publisher": {"type": "string"},
+        "why_relevant": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "excludedSource": {
+      "type": "object",
+      "required": ["title", "url", "date", "publisher", "reason"],
+      "properties": {
+        "title": {"type": "string"},
+        "url": {"type": "string"},
+        "date": {"type": "string"},
+        "publisher": {"type": "string"},
+        "reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}
