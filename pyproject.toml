@@ -7,4 +7,5 @@ dependencies = [
     "google-genai>=1.59.0",
     "matplotlib>=3.8.0",
     "openai>=2.15.0",
+    "pandas>=3.0.0",
 ]

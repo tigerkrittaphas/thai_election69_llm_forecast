@@ -6,6 +6,7 @@ total_weeks=$(awk 'NR>1 {count++} END {print count+0}' data/weeks.csv)
 current_week=0
 run_id="${RUN_ID:-$(date +%Y%m%d_%H%M%S)_$$}"
 run_dir="${RUN_DIR:-data/runs/$run_id}"
+enable_social_search="${ENABLE_SOCIAL_SEARCH:-0}"
 
 mkdir -p "$run_dir"
 echo "Run dir: $run_dir"
@@ -44,14 +45,15 @@ while IFS=, read -r week_index week_start week_end; do
   echo " Week $current_week/$total_weeks: $week_start to $week_end"
 
   # for model in gpt-5.2 gemini-3-pro claude-opus-4.5; do
-  for model in gpt-5.2; do
+  # for model in gpt-5.2; do
+  for model in gpt-5.2 gemini-3-pro-preview; do
     echo "  Model: $model"
     case "$model" in
       gpt-5.2)
         provider="openai"
         search_flag="--enable-search-tool"
         ;;
-      gemini-3-pro)
+      gemini-3-pro-preview)
         provider="gemini"
         search_flag="--enable-search-tool"
         ;;
@@ -76,17 +78,19 @@ while IFS=, read -r week_index week_start week_end; do
       $search_flag \
       --response-json
 
-    search_log_social="$run_dir/search_logs_social/$model/$week_start.json"
-    echo "    Search (social) -> $search_log_social"
-    ./scripts/run_search_llm.py \
-      --provider "$provider" \
-      --model "$model" \
-      --week-start "$week_start" \
-      --week-end "$week_end" \
-      --prompt-file prompts/search_prompt_social.md \
-      --out "$search_log_social" \
-      $search_flag \
-      --response-json
+    if [ "$enable_social_search" -eq 1 ]; then
+      search_log_social="$run_dir/search_logs_social/$model/$week_start.json"
+      echo "    Search (social) -> $search_log_social"
+      ./scripts/run_search_llm.py \
+        --provider "$provider" \
+        --model "$model" \
+        --week-start "$week_start" \
+        --week-end "$week_end" \
+        --prompt-file prompts/search_prompt_social.md \
+        --out "$search_log_social" \
+        $search_flag \
+        --response-json
+    fi
 
     no_prior_out="$run_dir/forecasts/$model/$week_start.no_prior.json"
     echo "    Forecast (no prior) -> $no_prior_out"
@@ -103,7 +107,6 @@ while IFS=, read -r week_index week_start week_end; do
     if [ -n "$prev_week_start" ]; then
       prior_with="$run_dir/forecasts/$model/$prev_week_start.json"
       prior_no="$run_dir/forecasts/$model/$prev_week_start.no_prior.json"
-      prior_social="$run_dir/forecasts/$model/$prev_week_start.with_prior_social.json"
 
       prior_file="$(pick_prior "$prior_with" "$prior_no")"
       if [ -n "$prior_file" ]; then
@@ -123,22 +126,25 @@ while IFS=, read -r week_index week_start week_end; do
         echo "    Forecast (with prior) skipped: no prior file."
       fi
 
-      social_prior_file="$(pick_prior "$prior_social" "$prior_with" "$prior_no")"
-      if [ -n "$social_prior_file" ]; then
-        with_prior_social_out="$run_dir/forecasts/$model/$week_start.with_prior_social.json"
-        echo "    Forecast (with prior + social; prior=$social_prior_file) -> $with_prior_social_out"
-        ./scripts/run_forecast_llm.py \
-          --provider "$provider" \
-          --model "$model" \
-          --condition with_prior \
-          --week-start "$week_start" \
-          --week-end "$week_end" \
-          --search-log "$search_log_social" \
-          --prior "$social_prior_file" \
-          --out "$with_prior_social_out" \
-          --response-json
-      else
-        echo "    Forecast (with prior + social) skipped: no prior file."
+      if [ "$enable_social_search" -eq 1 ]; then
+        prior_social="$run_dir/forecasts/$model/$prev_week_start.with_prior_social.json"
+        social_prior_file="$(pick_prior "$prior_social" "$prior_with" "$prior_no")"
+        if [ -n "$social_prior_file" ]; then
+          with_prior_social_out="$run_dir/forecasts/$model/$week_start.with_prior_social.json"
+          echo "    Forecast (with prior + social; prior=$social_prior_file) -> $with_prior_social_out"
+          ./scripts/run_forecast_llm.py \
+            --provider "$provider" \
+            --model "$model" \
+            --condition with_prior \
+            --week-start "$week_start" \
+            --week-end "$week_end" \
+            --search-log "$search_log_social" \
+            --prior "$social_prior_file" \
+            --out "$with_prior_social_out" \
+            --response-json
+        else
+          echo "    Forecast (with prior + social) skipped: no prior file."
+        fi
       fi
     fi
   done
@@ -150,5 +156,7 @@ progress_bar "$total_weeks" "$total_weeks"
 echo ""
 
 ./scripts/analyze_search_logs.py "$run_dir/search_logs" --out-dir "$run_dir/analysis/news"
-./scripts/analyze_search_logs.py "$run_dir/search_logs_social" --out-dir "$run_dir/analysis/social"
-./scripts/analyze_search_logs.py "$run_dir/search_logs" "$run_dir/search_logs_social" --out-dir "$run_dir/analysis/combined"
+if [ "$enable_social_search" -eq 1 ]; then
+  ./scripts/analyze_search_logs.py "$run_dir/search_logs_social" --out-dir "$run_dir/analysis/social"
+  ./scripts/analyze_search_logs.py "$run_dir/search_logs" "$run_dir/search_logs_social" --out-dir "$run_dir/analysis/combined"
+fi
